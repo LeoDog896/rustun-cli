@@ -444,6 +444,7 @@ dependencies = [
  "fibers_timeout_queue",
  "fibers_transport",
  "rustun",
+ "trackable 1.2.0",
 ]
 
 [[package]]

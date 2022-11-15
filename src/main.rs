@@ -1,28 +1,22 @@
 use clap::Parser;
 use rustun::server::{BindingHandler, UdpServer};
-use anyhow::Result;
-
-enum STUNType {
-    Client,
-    Server
-}
+use trackable::{error::MainError, track, track_any_err};
 
 #[derive(Debug, Parser)]
 struct Args {
-    stun_type: STUNType,
     #[clap(short, long, default_value_t = 3478)]
     port: u16,
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), MainError> {
     let args = Args::parse();
-    let addr = format!("0.0.0.0:{}", args.port).parse()?;
+    let addr = track_any_err!(format!("0.0.0.0:{}", args.port).parse())?;
 
-    let server = fibers_global::execute(UdpServer::start(
+    let server = track!(fibers_global::execute(UdpServer::start(
         fibers_global::handle(),
         addr,
         BindingHandler
-    ))?;
-    fibers_global::execute(server)?;
+    )))?;
+    track!(fibers_global::execute(server))?;
     Ok(())
 }
